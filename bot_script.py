@@ -1,4 +1,5 @@
 # Updated to force redeploy
+
 import telebot
 import requests
 
@@ -13,7 +14,7 @@ def handle_message(message):
         prompt = message.text
 
         headers = {
-            "Authorization": f"Bearer {API_KEY}",
+            "Authorization": "Bearer " + API_KEY,  # Improved header concatenation
             "Content-Type": "application/json"
         }
 
@@ -25,6 +26,9 @@ def handle_message(message):
         }
 
         response = requests.post("https://openrouter.ai/api/v1/chat/completions", json=payload, headers=headers)
+        
+        # Print status code and response for debugging
+        print(response.status_code)  # This will help us understand the response from the server
         data = response.json()
 
         if "choices" in data:
