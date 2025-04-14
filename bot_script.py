@@ -1,5 +1,3 @@
-# Updated to force redeploy
-
 import telebot
 import requests
 
