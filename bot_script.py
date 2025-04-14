@@ -1,42 +1,40 @@
-
 import telebot
 import requests
-# Your Telegram bot token
-TELEGRAM_API_KEY = '8032108432:AAFivhR-duE5dpdhE8zkQTrP9Jy84cgGrnQ'
 
-# Your OpenRouter API key
-OPENROUTER_API_KEY = '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'
+API_KEY = "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"
+BOT_TOKEN = "8032108432:AAFivhR-duE5dpdhE8zkQTrP9Jy84cgGrnQ"
 
-# Telegram Bot Setup
-bot = telebot.TeleBot(TELEGRAM_API_KEY)
+bot = telebot.TeleBot(BOT_TOKEN)
 
-# Function to call OpenRouter AI
-def get_ai_response(user_input):
-    url = "https://openrouter.ai/api/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://openrouter.ai",  # Required
-        "X-Title": "TelegramBot",  # Required
-    }
-    data = {
-        "model": "mistralai/mistral-7b-instruct",
-        "messages": [{"role": "user", "content": user_input}],
-        "temperature": 0.7
-    }
-
-    response = requests.post(url, headers=headers, json=data)
-    if response.status_code == 200:
-        return response.json()['choices'][0]['message']['content']
-    else:
-        return "Something went wrong. Try again later."
-
-# Message Handler
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
-    user_input = message.text
-    response = get_ai_response(user_input)
-    bot.reply_to(message, response)
+    try:
+        prompt = message.text
 
-print("Bot is running...")
+        headers = {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "model": "openchat/openchat-3.5-1210",  # or another OpenRouter-supported model
+            "messages": [
+                {"role": "user", "content": prompt}
+            ]
+        }
+
+        response = requests.post("https://openrouter.ai/api/v1/chat/completions", json=payload, headers=headers)
+        data = response.json()
+
+        if "choices" in data:
+            reply = data["choices"][0]["message"]["content"]
+        else:
+            reply = "OpenRouter error: " + str(data)
+
+        bot.send_message(message.chat.id, reply)
+
+    except Exception as e:
+        bot.send_message(message.chat.id, f"Error: {e}")
+        print(e)
+
 bot.polling()
