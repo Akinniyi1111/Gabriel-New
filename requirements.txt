@@ -1,2 +1,4 @@
 pyTelegramBotAPI
+fastapi
+requestspyTelegramBotAPI
 requests
